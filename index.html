@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Health Blind Bag</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #6366f1;
+            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            --glass: rgba(255, 255, 255, 0.7);
+            --border: rgba(255, 255, 255, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-gradient);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #1e293b;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 1000px;
+            padding: 40px 20px;
+            text-align: center;
+            perspective: 1000px;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #4f46e5, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        /* Layout túi */
+        .bags {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .bag {
+            position: relative;
+            height: 220px;
+            border-radius: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .bag:hover {
+            transform: translateY(-15px) rotate(2deg);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .bag .icon {
+            font-size: 60px;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.1));
+            transition: transform 0.3s ease;
+        }
+
+        .bag:hover .icon {
+            transform: scale(1.2) rotate(-10deg);
+        }
+
+        .bag .label {
+            margin-top: 15px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Màu sắc túi với Glassmorphism */
+        .red { background: rgba(255, 95, 129, 0.2); color: #e11d48; border-color: rgba(225, 29, 72, 0.2); }
+        .blue { background: rgba(96, 165, 250, 0.2); color: #2563eb; border-color: rgba(37, 99, 235, 0.2); }
+        .green { background: rgba(74, 222, 128, 0.2); color: #16a34a; border-color: rgba(22, 163, 74, 0.2); }
+        .yellow { background: rgba(250, 204, 21, 0.2); color: #854d0e; border-color: rgba(161, 98, 7, 0.2); }
+
+        /* Animation khi bốc túi */
+        .bag.opening {
+            animation: shake 0.6s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: rotate(0); }
+            20% { transform: rotate(-10deg) scale(1.1); }
+            40% { transform: rotate(10deg) scale(1.1); }
+            60% { transform: rotate(-10deg) scale(1.1); }
+            80% { transform: rotate(10deg) scale(1.1); }
+        }
+
+        .bag.disabled {
+            opacity: 0.4;
+            filter: grayscale(0.8);
+            cursor: not-allowed;
+            transform: scale(0.9);
+        }
+
+        /* Khung câu hỏi */
+        .question-box {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--border);
+            border-radius: 35px;
+            padding: 40px;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            line-height: 1.4;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+            transition: all 0.5s ease;
+            margin-bottom: 30px;
+            animation: fadeIn 0.8s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Nút điều khiển */
+        .controls button {
+            background: #1e293b;
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .controls button:hover {
+            background: #4f46e5;
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px rgba(79, 70, 229, 0.3);
+        }
+
+        .controls button:active { transform: scale(0.98); }
+
+        /* Responsive cho điện thoại */
+        @media (max-width: 600px) {
+            .bags { grid-template-columns: 1fr 1fr; }
+            .question-box { font-size: 1.2rem; padding: 25px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>HEALTH BLIND BOX</h1>
+    <div class="subtitle">Khám phá sức khỏe qua những chiếc túi bí ẩn</div>
+
+    <div class="bags">
+        <div class="bag red" onclick="pick('red', this)">
+            <div class="icon">❤️</div>
+            <div class="label">Cảm hứng</div>
+        </div>
+        <div class="bag blue" onclick="pick('blue', this)">
+            <div class="icon">💧</div>
+            <div class="label">Thói quen</div>
+        </div>
+        <div class="bag green" onclick="pick('green', this)">
+            <div class="icon">🌿</div>
+            <div class="label">Tâm trí</div>
+        </div>
+        <div class="bag yellow" onclick="pick('yellow', this)">
+            <div class="icon">⚡</div>
+            <div class="label">Kiến thức</div>
+        </div>
+    </div>
+
+    <div class="question-box" id="question">
+        ✨ Hãy chọn một chiếc túi để bắt đầu...
+    </div>
+
+    <div class="controls">
+        <button onclick="location.reload()">
+            <span>🔄</span> CHƠI LẠI TỪ ĐẦU
+        </button>
+    </div>
+</div>
+
+<script>
+const questionGroups = {
+    red: [
+        "Theo bạn, điều gì khiến sinh viên thường bỏ quên sức khỏe nhất?",
+        "Bạn có nghĩ sinh viên thường chủ quan với sức khỏe vì còn trẻ không?",
+        "Áp lực học tập ảnh hưởng đến sức khỏe sinh viên như thế nào?"
+    ],
+    blue: [
+        "Thứ bạn dùng nhiều hơn nước lọc mỗi ngày là gì?",
+        "Trong một tuần, bạn ngủ đủ 7–8 tiếng được bao nhiêu ngày?",
+        "Bạn có thường xuyên vận động hoặc chơi thể thao không?"
+    ],
+    green: [
+        "Bạn thường làm gì để giảm căng thẳng sau những ngày học tập mệt mỏi?",
+        "Bạn đã từng stress kéo dài vì học tập chưa?",
+        "Sức khỏe tinh thần quan trọng thế nào so với sức khỏe thể chất?"
+    ],
+    yellow: [
+        "Đúng hay Sai: Sinh viên còn trẻ nên ít gặp vấn đề sức khỏe nghiêm trọng.",
+        "Đúng hay Sai: Bỏ bữa ăn sáng có thể gây hại lâu dài.",
+        "Đúng hay Sai: Stress kéo dài không ảnh hưởng đến thể chất."
+    ]
+};
+
+function pick(color, bag) {
+    if (bag.classList.contains("disabled")) return;
+
+    const group = questionGroups[color];
+    if (group.length === 0) {
+        document.getElementById("question").innerHTML = "❗ Túi này đã được khám phá hết!";
+        return;
+    }
+
+    // Hiệu ứng rung túi
+    bag.classList.add("opening");
+
+    // Đổi nội dung khung câu hỏi sau khi kết thúc animation
+    setTimeout(() => {
+        bag.classList.remove("opening");
+        const index = Math.floor(Math.random() * group.length);
+        const q = group.splice(index, 1)[0];
+        
+        const qBox = document.getElementById("question");
+        qBox.style.opacity = 0;
+        
+        setTimeout(() => {
+            qBox.innerText = q;
+            qBox.style.opacity = 1;
+            qBox.style.borderLeft = `8px solid ${getComputedStyle(bag).color}`;
+        }, 200);
+
+        bag.classList.add("disabled");
+    }, 600);
+}
+</script>
+
+</body>
+</html>
