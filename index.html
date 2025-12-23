@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bốc Túi Mù Sức Khỏe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- GIỮ NGUYÊN CSS CŨ VÀ THÊM PHẦN DƯỚI ĐÂY --- */
+        :root {
+            --primary: #6366f1;
+            --bg-gradient: linear-gradient(135deg, #f5f7ff 0%, #c3cfe2 100%);
+            --glass: rgba(255, 255, 255, 0.8);
+            --shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #1e293b;
+            scroll-behavior: smooth;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 800;
+            background: linear-gradient(to right, #4f46e5, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .subtitle { font-size: 1.2rem; color: #64748b; margin-bottom: 20px; }
+
+        /* Nút Chơi Lại Mới */
+        .btn-refresh {
+            margin-bottom: 40px;
+            padding: 10px 25px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #4f46e5;
+            background: white;
+            border: 2px solid #4f46e5;
+            border-radius: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .btn-refresh:hover {
+            background: #4f46e5;
+            color: white;
+            transform: rotate(-3deg) scale(1.05);
+        }
+
+        .btn-refresh svg { width: 18px; height: 18px; fill: currentColor; }
+
+        /* Các phần CSS còn lại giữ nguyên như bản trước */
+        .bags-container { display: flex; justify-content: center; flex-wrap: wrap; gap: 30px; max-width: 1000px; }
+        .bag {
+            width: 180px; height: 240px; border-radius: 24px; font-size: 22px; font-weight: 700;
+            color: white; display: flex; justify-content: center; align-items: center;
+            cursor: pointer; box-shadow: var(--shadow); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative; overflow: hidden; border: 4px solid rgba(255,255,255,0.3);
+        }
+        .bag:hover { transform: translateY(-15px) scale(1.05); }
+        .red { background: linear-gradient(135deg, #ff416c, #ff4b2b); }
+        .blue { background: linear-gradient(135deg, #2193b0, #6dd5ed); }
+        .green { background: linear-gradient(135deg, #11998e, #38ef7d); }
+        .yellow { background: linear-gradient(135deg, #f8ff00, #f8c210); color: #444; }
+        .bag.disabled { filter: grayscale(1); opacity: 0.5; pointer-events: none; transform: scale(0.9); }
+
+        .quiz {
+            background: var(--glass); backdrop-filter: blur(15px); border-radius: 32px;
+            padding: 40px; width: 90%; max-width: 700px; margin-top: 40px; display: none;
+            box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,0.5);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        .timer-container {
+            width: 70px; height: 70px; border-radius: 50%; background: white;
+            display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;
+            font-size: 24px; font-weight: 800; color: #ef4444; border: 4px solid #fee2e2;
+        }
+
+        .question { font-size: 22px; font-weight: 700; margin-bottom: 30px; }
+        .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .answer {
+            padding: 18px; background: white; border-radius: 16px; border: 2px solid transparent;
+            cursor: pointer; transition: all 0.2s; font-weight: 600;
+        }
+        .answer.selected { background: #eef2ff; border-color: #6366f1; }
+        .answer.correct { background: #dcfce7 !important; border-color: #22c55e !important; }
+        .answer.wrong { background: #fee2e2 !important; border-color: #ef4444 !important; }
+
+        .btn-confirm {
+            margin-top: 30px; padding: 15px 40px; font-size: 18px; font-weight: 700;
+            border-radius: 50px; border: none; background: #4f46e5; color: white;
+            cursor: pointer; box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+        }
+
+        @media (max-width: 600px) { .answers { grid-template-columns: 1fr; } }
+    </style>
+</head>
+
+<body>
+
+    <h1>🎁 TÚI MÙ SỨC KHỎE 🎁</h1>
+    <div class="subtitle">Khám phá bí mật sức khỏe của bạn</div>
+
+    <button class="btn-refresh" onclick="resetGame()">
+        <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+        Chơi lại từ đầu
+    </button>
+
+    <div class="bags-container">
+        <div class="bag red" onclick="pickBag('red',this)">TÚI ĐỎ</div>
+        <div class="bag blue" onclick="pickBag('blue',this)">TÚI XANH</div>
+        <div class="bag green" onclick="pickBag('green',this)">TÚI LÁ</div>
+        <div class="bag yellow" onclick="pickBag('yellow',this)">TÚI VÀNG</div>
+    </div>
+
+    <div class="quiz" id="quiz">
+        <div class="timer-container" id="timer">10</div>
+        <div class="question" id="question"></div>
+        <div class="answers" id="answers"></div>
+        <button class="btn-confirm" id="confirmBtn" onclick="confirmAnswer()">XÁC NHẬN</button>
+    </div>
+
+    <audio id="openSound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.wav"></audio>
+    <audio id="tickSound" src="https://assets.mixkit.co/sfx/preview/mixkit-fast-tick-tock-1046.wav"></audio>
+    <audio id="correctSound" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.wav"></audio>
+    <audio id="wrongSound" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.wav"></audio>
+
+<script>
+    let currentQuestion = null;
+    let selectedIndex = null;
+    let timer = 10;
+    let interval;
+    let isAnswered = false;
+
+    const data = {
+        red: [
+            {q:"Nguyên nhân hàng đầu khiến sinh viên bỏ quên sức khỏe?", options:["Áp lực học tập","Thiếu thời gian","Chủ quan","Tất cả các ý trên"], correct:3},
+            {q:"Stress kéo dài có thể gây ra bệnh gì?", options:["Đau dạ dày","Mất ngủ","Suy giảm trí nhớ","Cả 3 phương án"], correct:3}
+        ],
+        blue: [
+            {q:"Tác hại của việc lạm dụng caffeine quá mức?", options:["Run tay, tim đập nhanh","Tăng cân","Ngủ ngon hơn","Trắng da"], correct:0},
+            {q:"Một ly trà sữa trân châu chứa khoảng bao nhiêu calo?", options:["100 kcal","200 kcal","400-600 kcal","50 kcal"], correct:2}
+        ],
+        green: [
+            {q:"Thời gian tập thể dục tối thiểu mỗi ngày nên là?", options:["5 phút","30 phút","2 tiếng","4 tiếng"], correct:1},
+            {q:"Ngồi học liên tục quá 2 tiếng gây hại nhất cho?", options:["Cột sống và mắt","Tóc","Móng tay","Tai"], correct:0}
+        ],
+        yellow: [
+            {q:"Bỏ bữa sáng thường xuyên có nguy cơ bị?", options:["Học giỏi hơn","Đau dạ dày, kết sỏi mật","Tăng chiều cao","Không ảnh hưởng"], correct:1},
+            {q:"Sinh viên có cần khám sức khỏe định kỳ không?", options:["Có, rất cần thiết","Không, vì còn trẻ","Chỉ khi thấy đau","Tốn thời gian"], correct:0}
+        ]
+    };
+
+    function pickBag(color, bag){
+        document.getElementById("openSound").play();
+        bag.classList.add("disabled");
+
+        const list = data[color];
+        currentQuestion = list[Math.floor(Math.random() * list.length)];
+        selectedIndex = null;
+        isAnswered = false;
+        
+        document.getElementById("quiz").style.display = "block";
+        document.getElementById("confirmBtn").innerText = "XÁC NHẬN";
+        document.getElementById("confirmBtn").style.background = "#4f46e5";
+        document.getElementById("question").innerText = currentQuestion.q;
+        
+        const answersDiv = document.getElementById("answers");
+        answersDiv.innerHTML = "";
+        currentQuestion.options.forEach((o, i) => {
+            let d = document.createElement("div");
+            d.className = "answer";
+            d.innerText = o;
+            d.onclick = () => { if(!isAnswered) selectAnswer(d, i); };
+            answersDiv.appendChild(d);
+        });
+
+        startTimer();
+    }
+
+    function selectAnswer(el, i){
+        document.querySelectorAll(".answer").forEach(a => a.classList.remove("selected"));
+        el.classList.add("selected");
+        selectedIndex = i;
+    }
+
+    function startTimer(){
+        clearInterval(interval);
+        timer = 10;
+        document.getElementById("timer").innerText = timer;
+        interval = setInterval(() => {
+            timer--;
+            document.getElementById("timer").innerText = timer;
+            if(timer <= 3 && timer > 0) document.getElementById("tickSound").play();
+            if(timer === 0){ clearInterval(interval); showAnswer(); }
+        }, 1000);
+    }
+
+    function confirmAnswer(){
+        if(!isAnswered) {
+            if(selectedIndex === null) { alert("Vui lòng chọn đáp án!"); return; }
+            clearInterval(interval);
+            showAnswer();
+        } else {
+            document.getElementById("quiz").style.display = "none";
+        }
+    }
+
+    function showAnswer(){
+        isAnswered = true;
+        const answers = document.querySelectorAll(".answer");
+        answers[currentQuestion.correct].classList.add("correct");
+        if(selectedIndex !== null && selectedIndex !== currentQuestion.correct){
+            answers[selectedIndex].classList.add("wrong");
+            document.getElementById("wrongSound").play();
+        } else {
+            document.getElementById("correctSound").play();
+        }
+        document.getElementById("confirmBtn").innerText = "TIẾP TỤC";
+        document.getElementById("confirmBtn").style.background = "#10b981";
+    }
+
+    // --- HÀM RESET GAME MỚI ---
+    function resetGame() {
+        // 1. Ẩn khu vực Quiz
+        document.getElementById("quiz").style.display = "none";
+        
+        // 2. Kích hoạt lại tất cả các túi
+        document.querySelectorAll(".bag").forEach(bag => {
+            bag.classList.remove("disabled");
+        });
+
+        // 3. Dừng bộ đếm thời gian
+        clearInterval(interval);
+
+        // 4. Reset các biến trạng thái
+        isAnswered = false;
+        selectedIndex = null;
+        
+        // 5. Cuộn màn hình lên trên cùng mượt mà
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>
+
+</body>
+</html>
