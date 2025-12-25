@@ -2,264 +2,483 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
+    <title>🎄 Merry Christmas Health Game 🎁</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bốc Túi Mù Sức Khỏe</title>
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    
     <style>
-        /* --- GIỮ NGUYÊN CSS CŨ VÀ THÊM PHẦN DƯỚI ĐÂY --- */
         :root {
-            --primary: #6366f1;
-            --bg-gradient: linear-gradient(135deg, #f5f7ff 0%, #c3cfe2 100%);
-            --glass: rgba(255, 255, 255, 0.8);
-            --shadow: 0 20px 40px rgba(0,0,0,0.1);
+            --primary-red: #ff3838;
+            --primary-green: #2ecc71;
+            --gold: #f1c40f;
+            --dark-bg: #0a0f1e;
         }
 
+        * { box-sizing: border-box; outline: none; }
+
         body {
-            font-family: 'Be Vietnam Pro', sans-serif;
-            background: var(--bg-gradient);
-            min-height: 100vh;
             margin: 0;
+            padding: 0;
+            font-family: 'Quicksand', sans-serif;
+            background: #050a14;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(22, 91, 51, 0.3) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(212, 36, 38, 0.2) 0%, transparent 40%);
+            color: white;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
-            color: #1e293b;
-            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        /* ❄️ Canvas Tuyết */
+        #snow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* 🎅 Header */
+        header {
+            text-align: center;
+            padding: 60px 20px;
+            z-index: 2;
         }
 
         h1 {
-            font-size: clamp(2rem, 5vw, 3.5rem);
-            font-weight: 800;
-            background: linear-gradient(to right, #4f46e5, #ec4899);
+            font-size: 3rem;
+            margin: 0;
+            background: linear-gradient(to bottom, #fff, var(--gold));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
-            text-transform: uppercase;
+            text-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            letter-spacing: -1px;
         }
 
-        .subtitle { font-size: 1.2rem; color: #64748b; margin-bottom: 20px; }
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            margin-top: 10px;
+            letter-spacing: 2px;
+        }
 
-        /* Nút Chơi Lại Mới */
-        .btn-refresh {
-            margin-bottom: 40px;
-            padding: 10px 25px;
-            font-size: 16px;
-            font-weight: 600;
-            color: #4f46e5;
-            background: white;
-            border: 2px solid #4f46e5;
-            border-radius: 50px;
+        /* 🎁 Gifts Grid */
+        .bags-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 30px;
+            width: 100%;
+            max-width: 900px;
+            padding: 20px;
+            z-index: 2;
+        }
+
+        .bag-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 40px 20px;
+            text-align: center;
             cursor: pointer;
-            display: flex;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .bag-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: translateX(-100%);
+            transition: 0.6s;
+        }
+
+        .bag-card:hover::before { transform: translateX(100%); }
+
+        .bag-card:hover {
+            transform: translateY(-15px) scale(1.05);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .bag-emoji {
+            font-size: 4rem;
+            display: block;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
+        }
+
+        .bag-label {
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.7;
+        }
+
+        /* Glow Effects */
+        .glow-red:hover { box-shadow: 0 0 30px rgba(255, 56, 56, 0.4); }
+        .glow-green:hover { box-shadow: 0 0 30px rgba(46, 204, 113, 0.4); }
+        .glow-gold:hover { box-shadow: 0 0 30px rgba(241, 196, 15, 0.4); }
+        .glow-blue:hover { box-shadow: 0 0 30px rgba(52, 152, 219, 0.4); }
+
+        /* 📋 Pop-up Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            display: none;
+            justify-content: center;
             align-items: center;
-            gap: 8px;
-            transition: all 0.3s;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            z-index: 100;
+            padding: 20px;
         }
 
-        .btn-refresh:hover {
-            background: #4f46e5;
-            color: white;
-            transform: rotate(-3deg) scale(1.05);
+        .card {
+            background: linear-gradient(135deg, rgba(30, 40, 50, 0.95), rgba(10, 15, 25, 0.98));
+            width: 100%;
+            max-width: 550px;
+            border-radius: 32px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 80px rgba(0,0,0,0.8);
+            transform: scale(0.8);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        .btn-refresh svg { width: 18px; height: 18px; fill: currentColor; }
-
-        /* Các phần CSS còn lại giữ nguyên như bản trước */
-        .bags-container { display: flex; justify-content: center; flex-wrap: wrap; gap: 30px; max-width: 1000px; }
-        .bag {
-            width: 180px; height: 240px; border-radius: 24px; font-size: 22px; font-weight: 700;
-            color: white; display: flex; justify-content: center; align-items: center;
-            cursor: pointer; box-shadow: var(--shadow); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative; overflow: hidden; border: 4px solid rgba(255,255,255,0.3);
-        }
-        .bag:hover { transform: translateY(-15px) scale(1.05); }
-        .red { background: linear-gradient(135deg, #ff416c, #ff4b2b); }
-        .blue { background: linear-gradient(135deg, #2193b0, #6dd5ed); }
-        .green { background: linear-gradient(135deg, #11998e, #38ef7d); }
-        .yellow { background: linear-gradient(135deg, #f8ff00, #f8c210); color: #444; }
-        .bag.disabled { filter: grayscale(1); opacity: 0.5; pointer-events: none; transform: scale(0.9); }
-
-        .quiz {
-            background: var(--glass); backdrop-filter: blur(15px); border-radius: 32px;
-            padding: 40px; width: 90%; max-width: 700px; margin-top: 40px; display: none;
-            box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,0.5);
-            animation: slideUp 0.5s ease-out;
+        .modal-overlay.active .card {
+            transform: scale(1);
+            opacity: 1;
         }
 
-        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-
-        .timer-container {
-            width: 70px; height: 70px; border-radius: 50%; background: white;
-            display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;
-            font-size: 24px; font-weight: 800; color: #ef4444; border: 4px solid #fee2e2;
+        .timer-wrap {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
         }
 
-        .question { font-size: 22px; font-weight: 700; margin-bottom: 30px; }
-        .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .answer {
-            padding: 18px; background: white; border-radius: 16px; border: 2px solid transparent;
-            cursor: pointer; transition: all 0.2s; font-weight: 600;
-        }
-        .answer.selected { background: #eef2ff; border-color: #6366f1; }
-        .answer.correct { background: #dcfce7 !important; border-color: #22c55e !important; }
-        .answer.wrong { background: #fee2e2 !important; border-color: #ef4444 !important; }
-
-        .btn-confirm {
-            margin-top: 30px; padding: 15px 40px; font-size: 18px; font-weight: 700;
-            border-radius: 50px; border: none; background: #4f46e5; color: white;
-            cursor: pointer; box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+        #timer-bar {
+            width: 100%; height: 100%;
+            background: var(--gold);
+            transition: width 1s linear;
         }
 
-        @media (max-width: 600px) { .answers { grid-template-columns: 1fr; } }
+        .question {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            line-height: 1.4;
+            color: #fff;
+        }
+
+        .options { display: grid; gap: 12px; }
+
+        .options button {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.9);
+            padding: 18px 25px;
+            font-size: 1.05rem;
+            font-family: inherit;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            position: relative;
+        }
+
+        .options button:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateX(8px);
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .options button:active { transform: scale(0.98); }
+
+        .correct { 
+            background: var(--primary-green) !important; 
+            border-color: transparent !important;
+            box-shadow: 0 0 20px rgba(46, 204, 113, 0.4);
+        }
+        .wrong { 
+            background: var(--primary-red) !important; 
+            opacity: 0.8;
+        }
+
+        /* 🎮 Controls */
+        .controls {
+            margin: 50px 0;
+            display: flex;
+            gap: 15px;
+            z-index: 2;
+        }
+
+        .btn-glass {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-weight: 700;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            transition: 0.3s;
+        }
+
+        .btn-glass:hover {
+            background: #fff;
+            color: #000;
+        }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 2rem; }
+            .bags-container { grid-template-columns: 1fr 1fr; }
+        }
     </style>
 </head>
 
 <body>
 
-    <h1>🎁 TÚI MÙ SỨC KHỎE 🎁</h1>
-    <div class="subtitle">Khám phá bí mật sức khỏe của bạn</div>
+<canvas id="snow"></canvas>
 
-    <button class="btn-refresh" onclick="resetGame()">
-        <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
-        Chơi lại từ đầu
-    </button>
+<header>
+    <h1>CHRISTMAS GIFT</h1>
+    <div class="subtitle">CHỌN MỘT TÚI QUÀ SỨC KHỎE</div>
+</header>
 
-    <div class="bags-container">
-        <div class="bag red" onclick="pickBag('red',this)">TÚI ĐỎ</div>
-        <div class="bag blue" onclick="pickBag('blue',this)">TÚI XANH</div>
-        <div class="bag green" onclick="pickBag('green',this)">TÚI LÁ</div>
-        <div class="bag yellow" onclick="pickBag('yellow',this)">TÚI VÀNG</div>
+<div class="bags-container">
+    <div class="bag-card glow-red" onclick="pickBag('red')">
+        <span class="bag-emoji">🎁</span>
+        <span class="bag-label">Hộp Quà Đỏ</span>
     </div>
-
-    <div class="quiz" id="quiz">
-        <div class="timer-container" id="timer">10</div>
-        <div class="question" id="question"></div>
-        <div class="answers" id="answers"></div>
-        <button class="btn-confirm" id="confirmBtn" onclick="confirmAnswer()">XÁC NHẬN</button>
+    <div class="bag-card glow-green" onclick="pickBag('green')">
+        <span class="bag-emoji">🎄</span>
+        <span class="bag-label">Cây Thông</span>
     </div>
+    <div class="bag-card glow-gold" onclick="pickBag('gold')">
+        <span class="bag-emoji">🔔</span>
+        <span class="bag-label">Chuông Vàng</span>
+    </div>
+    <div class="bag-card glow-blue" onclick="pickBag('blue')">
+        <span class="bag-emoji">❄️</span>
+        <span class="bag-label">Bông Tuyết</span>
+    </div>
+</div>
 
-    <audio id="openSound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.wav"></audio>
-    <audio id="tickSound" src="https://assets.mixkit.co/sfx/preview/mixkit-fast-tick-tock-1046.wav"></audio>
-    <audio id="correctSound" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.wav"></audio>
-    <audio id="wrongSound" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.wav"></audio>
+<div class="modal-overlay" id="modal">
+    <div class="card">
+        <div class="timer-wrap">
+            <div id="timer-bar"></div>
+        </div>
+        <div class="question" id="question">Câu hỏi sẽ hiện ở đây?</div>
+        <div class="options" id="options"></div>
+        <div style="margin-top: 30px; text-align: center;">
+            <button class="btn-glass" onclick="closeModal()">Đóng câu hỏi</button>
+        </div>
+    </div>
+</div>
+
+<div class="controls">
+    <button class="btn-glass" onclick="location.reload()">🔄 Chơi lại</button>
+    <button class="btn-glass" onclick="toggleMusic()">🎵 Âm thanh</button>
+</div>
+
+<audio id="openSound" src="https://assets.mixkit.co/sfx/preview/mixkit-magic-marimba-notif-jingle-2334.mp3"></audio>
+<audio id="bgMusic" loop preload="auto">
+    <source src="christmas.mp3" type="audio/mpeg">
+</audio>
 
 <script>
-    let currentQuestion = null;
-    let selectedIndex = null;
-    let timer = 10;
-    let interval;
-    let isAnswered = false;
+// Tự động phát nhạc nền giáng sinh liên tục
+let musicStarted = false;
+const bgMusic = document.getElementById("bgMusic");
+bgMusic.volume = 0.4; // Âm lượng vừa phải cho nhạc nền
+bgMusic.loop = true;  // Đảm bảo loop
 
-    const data = {
-        red: [
-            {q:"Nguyên nhân hàng đầu khiến sinh viên bỏ quên sức khỏe?", options:["Áp lực học tập","Thiếu thời gian","Chủ quan","Tất cả các ý trên"], correct:3},
-            {q:"Stress kéo dài có thể gây ra bệnh gì?", options:["Đau dạ dày","Mất ngủ","Suy giảm trí nhớ","Cả 3 phương án"], correct:3}
-        ],
-        blue: [
-            {q:"Tác hại của việc lạm dụng caffeine quá mức?", options:["Run tay, tim đập nhanh","Tăng cân","Ngủ ngon hơn","Trắng da"], correct:0},
-            {q:"Một ly trà sữa trân châu chứa khoảng bao nhiêu calo?", options:["100 kcal","200 kcal","400-600 kcal","50 kcal"], correct:2}
-        ],
-        green: [
-            {q:"Thời gian tập thể dục tối thiểu mỗi ngày nên là?", options:["5 phút","30 phút","2 tiếng","4 tiếng"], correct:1},
-            {q:"Ngồi học liên tục quá 2 tiếng gây hại nhất cho?", options:["Cột sống và mắt","Tóc","Móng tay","Tai"], correct:0}
-        ],
-        yellow: [
-            {q:"Bỏ bữa sáng thường xuyên có nguy cơ bị?", options:["Học giỏi hơn","Đau dạ dày, kết sỏi mật","Tăng chiều cao","Không ảnh hưởng"], correct:1},
-            {q:"Sinh viên có cần khám sức khỏe định kỳ không?", options:["Có, rất cần thiết","Không, vì còn trẻ","Chỉ khi thấy đau","Tốn thời gian"], correct:0}
-        ]
-    };
-
-    function pickBag(color, bag){
-        document.getElementById("openSound").play();
-        bag.classList.add("disabled");
-
-        const list = data[color];
-        currentQuestion = list[Math.floor(Math.random() * list.length)];
-        selectedIndex = null;
-        isAnswered = false;
-        
-        document.getElementById("quiz").style.display = "block";
-        document.getElementById("confirmBtn").innerText = "XÁC NHẬN";
-        document.getElementById("confirmBtn").style.background = "#4f46e5";
-        document.getElementById("question").innerText = currentQuestion.q;
-        
-        const answersDiv = document.getElementById("answers");
-        answersDiv.innerHTML = "";
-        currentQuestion.options.forEach((o, i) => {
-            let d = document.createElement("div");
-            d.className = "answer";
-            d.innerText = o;
-            d.onclick = () => { if(!isAnswered) selectAnswer(d, i); };
-            answersDiv.appendChild(d);
+function startMusic() {
+    if (!musicStarted) {
+        bgMusic.play().then(() => {
+            musicStarted = true;
+            console.log("🎵 Nhạc Giáng Sinh đang phát nền!");
+        }).catch(err => {
+            console.log("⚠️ Click vào trang để bật nhạc nền", err);
         });
-
-        startTimer();
     }
+}
 
-    function selectAnswer(el, i){
-        document.querySelectorAll(".answer").forEach(a => a.classList.remove("selected"));
-        el.classList.add("selected");
-        selectedIndex = i;
-    }
+// Đảm bảo nhạc không bị dừng
+bgMusic.addEventListener('ended', function() {
+    this.currentTime = 0;
+    this.play();
+});
 
-    function startTimer(){
-        clearInterval(interval);
-        timer = 10;
-        document.getElementById("timer").innerText = timer;
-        interval = setInterval(() => {
-            timer--;
-            document.getElementById("timer").innerText = timer;
-            if(timer <= 3 && timer > 0) document.getElementById("tickSound").play();
-            if(timer === 0){ clearInterval(interval); showAnswer(); }
-        }, 1000);
-    }
+// Thử phát ngay khi trang sẵn sàng
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startMusic);
+} else {
+    startMusic();
+}
 
-    function confirmAnswer(){
-        if(!isAnswered) {
-            if(selectedIndex === null) { alert("Vui lòng chọn đáp án!"); return; }
-            clearInterval(interval);
+// Phát nhạc khi user tương tác lần đầu (fallback cho trình duyệt chặn autoplay)
+['click', 'touchstart', 'keydown'].forEach(event => {
+    document.addEventListener(event, startMusic, { once: true });
+});
+
+const data = {
+    red: [
+        { q: "Mùa đông sinh viên thường lười uống nước, điều này gây hại gì?", o: ["Làm da đẹp hơn", "Gây mệt mỏi & sỏi thận", "Giúp giảm cân", "Tăng trí nhớ"], a: 1 },
+        { q: "Uống nước đủ mỗi ngày giúp ích gì cho sinh viên?", o: ["Tăng năng lượng và tập trung", "Gây đầy bụng", "Giảm trí nhớ", "Không ảnh hưởng"], a: 0 },
+        { q: "Nên uống bao nhiêu nước mỗi ngày để giữ sức khỏe?", o: ["0.5 lít", "1 lít", "2-3 lít (tuỳ hoạt động)", "5 lít"], a: 2 },
+        { q: "Uống nước có tác dụng gì khi bị cảm cúm?", o: ["Làm giảm sốt nhanh", "Giúp loãng đờm và giảm viêm", "Tăng ho", "Không liên quan"], a: 1 },
+        { q: "Nên tránh gì để giữ hệ tiêu hóa mùa đông?", o: ["Ăn nhiều rau", "Ăn đồ sống/bẩn", "Uống đủ nước", "Ăn sáng đều đặn"], a: 1 }
+    ],
+    green: [
+        { q: "Việc tắm nước quá nóng trong thời gian dài có tốt không?", o: ["Rất tốt cho da", "Làm khô da & hạ huyết áp đột ngột", "Giúp tăng đề kháng", "Không ảnh hưởng"], a: 1 },
+        { q: "Ngủ đủ giấc ảnh hưởng thế nào tới kết quả học tập?", o: ["Cải thiện trí nhớ và tập trung", "Gây mệt mỏi vào ban ngày", "Làm giảm khả năng học", "Không liên quan"], a: 0 },
+        { q: "Thời lượng ngủ phù hợp cho sinh viên trưởng thành là?", o: ["3-5 giờ", "6-8 giờ", "9-11 giờ", "12+ giờ"], a: 1 },
+        { q: "Làm sao để giảm căng thẳng khi thi?", o: ["Ngủ ít để học thêm", "Tập thở, nghỉ ngơi và vận động nhẹ", "Uống rượu", "Bỏ ăn"], a: 1 },
+        { q: "Thói quen tốt trước khi ngủ là?", o: ["Dùng điện thoại trong giường", "Uống cà phê ngay trước ngủ", "Đọc sách/thiền nhẹ và tránh màn hình", "Ăn đồ ngọt"], a: 2 }
+    ],
+    gold: [
+        { q: "Ăn đồ ngọt nhiều vào dịp lễ hội gây ra vấn đề gì?", o: ["Giúp tỉnh táo", "Gây mụn & tăng đường huyết", "Tốt cho hệ tiêu hóa", "Làm răng chắc hơn"], a: 1 },
+        { q: "Ăn quá nhiều đồ ăn nhanh thường xuyên có thể dẫn đến?", o: ["Tăng cân và rối loạn tiêu hóa", "Tốt cho da", "Tăng sức bền", "Không ảnh hưởng"], a: 0 },
+        { q: "Để giữ dinh dưỡng, nên ưu tiên gì khi ăn vội ở trường?", o: ["Chọn đồ chiên rán", "Thêm rau và trái cây", "Chỉ ăn đồ ngọt", "Uống nhiều nước ngọt"], a: 1 },
+        { q: "Ăn thiếu chất xơ thường gây?", o: ["Táo bón và rối loạn tiêu hóa", "Tăng năng lượng", "Giảm cân nhanh", "Không ảnh hưởng"], a: 0 },
+        { q: "Uống nước ngọt có ga nhiều có thể gây?", o: ["Sâu răng và tăng cân", "Tăng đề kháng", "Giúp tiêu hóa tốt", "Tốt cho xương"], a: 0 }
+    ],
+    blue: [
+        { q: "Thời điểm nào tốt nhất để tập thể dục trong mùa lạnh?", o: ["Sáng sớm lúc sương mù", "Lúc đêm khuya", "Khi nắng ấm (9-10h sáng)", "Không nên tập"], a: 2 },
+        { q: "Tập luyện đều đặn giúp ích gì cho sinh viên?", o: ["Giảm stress và cải thiện tinh thần", "Gây mất ngủ luôn", "Giảm trí thông minh", "Không có tác dụng"], a: 0 },
+        { q: "Khi tập ngoài trời lạnh, cần lưu ý gì?", o: ["Không cần mặc ấm", "Khởi động kỹ và mặc lớp ấm", "Uống rượu trước khi tập", "Tập ngay khi đói"], a: 1 },
+        { q: "Tần suất tập luyện khuyến nghị mỗi tuần là?", o: ["1 lần", "3-5 lần 30 phút", "Hàng ngày 6 giờ", "Không cần"], a: 1 },
+        { q: "Nên làm gì sau khi tập ngoài trời lạnh?", o: ["Ngồi yên ngoài lạnh", "Thay đồ ướt, uống nước ấm và giữ ấm", "Ăn ngay đồ lạnh", "Tắm nước lạnh"], a: 1 }
+    ]
+};
+
+let timer, timeLeft, currentAnswer;
+
+function pickBag(color) {
+    document.getElementById("bgMusic").play();
+    document.getElementById("openSound").play();
+
+    const questions = data[color];
+    const q = questions[Math.floor(Math.random() * questions.length)];
+    currentAnswer = q.a;
+
+    document.getElementById("question").innerText = q.q;
+    const optionsDiv = document.getElementById("options");
+    optionsDiv.innerHTML = "";
+
+    q.o.forEach((opt, i) => {
+        const btn = document.createElement("button");
+        btn.innerText = `${String.fromCharCode(65 + i)}. ${opt}`;
+        btn.onclick = () => selectAnswer(btn, i);
+        optionsDiv.appendChild(btn);
+    });
+
+    const modal = document.getElementById("modal");
+    modal.style.display = "flex";
+    setTimeout(() => modal.classList.add("active"), 10);
+    
+    startTimer();
+}
+
+function startTimer() {
+    timeLeft = 10;
+    const bar = document.getElementById("timer-bar");
+    bar.style.width = "100%";
+    
+    clearInterval(timer);
+    timer = setInterval(() => {
+        timeLeft--;
+        bar.style.width = (timeLeft * 10) + "%";
+        if (timeLeft <= 0) {
+            clearInterval(timer);
             showAnswer();
-        } else {
-            document.getElementById("quiz").style.display = "none";
         }
-    }
+    }, 1000);
+}
 
-    function showAnswer(){
-        isAnswered = true;
-        const answers = document.querySelectorAll(".answer");
-        answers[currentQuestion.correct].classList.add("correct");
-        if(selectedIndex !== null && selectedIndex !== currentQuestion.correct){
-            answers[selectedIndex].classList.add("wrong");
-            document.getElementById("wrongSound").play();
-        } else {
-            document.getElementById("correctSound").play();
-        }
-        document.getElementById("confirmBtn").innerText = "TIẾP TỤC";
-        document.getElementById("confirmBtn").style.background = "#10b981";
-    }
+function selectAnswer(btn, index) {
+    clearInterval(timer);
+    const buttons = document.querySelectorAll(".options button");
+    buttons.forEach((b, i) => {
+        if (i === currentAnswer) b.classList.add("correct");
+        else if (i === index) b.classList.add("wrong");
+        b.disabled = true;
+    });
+}
 
-    // --- HÀM RESET GAME MỚI ---
-    function resetGame() {
-        // 1. Ẩn khu vực Quiz
-        document.getElementById("quiz").style.display = "none";
-        
-        // 2. Kích hoạt lại tất cả các túi
-        document.querySelectorAll(".bag").forEach(bag => {
-            bag.classList.remove("disabled");
+function showAnswer() {
+    const buttons = document.querySelectorAll(".options button");
+    buttons.forEach((b, i) => {
+        if (i === currentAnswer) b.classList.add("correct");
+        b.disabled = true;
+    });
+}
+
+function closeModal() {
+    const modal = document.getElementById("modal");
+    modal.classList.remove("active");
+    setTimeout(() => modal.style.display = "none", 400);
+}
+
+function toggleMusic() {
+    const m = document.getElementById("bgMusic");
+    m.paused ? m.play() : m.pause();
+}
+
+// ❄️ Cải tiến hiệu ứng Tuyết rơi
+const canvas = document.getElementById("snow");
+const ctx = canvas.getContext("2d");
+let w, h, particles = [];
+
+function init() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+    particles = [];
+    for (let i = 0; i < 120; i++) {
+        particles.push({
+            x: Math.random() * w,
+            y: Math.random() * h,
+            r: Math.random() * 3 + 1,
+            d: Math.random() * 1,
+            s: Math.random() * 1 + 0.5
         });
-
-        // 3. Dừng bộ đếm thời gian
-        clearInterval(interval);
-
-        // 4. Reset các biến trạng thái
-        isAnswered = false;
-        selectedIndex = null;
-        
-        // 5. Cuộn màn hình lên trên cùng mượt mà
-        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+}
+
+function draw() {
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+    ctx.beginPath();
+    particles.forEach(p => {
+        ctx.moveTo(p.x, p.y);
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        p.y += p.s;
+        p.x += Math.sin(p.d) * 0.5;
+        if (p.y > h) p.y = -10;
+    });
+    ctx.fill();
+    requestAnimationFrame(draw);
+}
+
+window.addEventListener("resize", init);
+init();
+draw();
 </script>
 
 </body>
